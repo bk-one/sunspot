@@ -74,6 +74,10 @@ module Sunspot
       end
       alias_method :keywords, :fulltext
 
+      def raw_query(keywords, options = {})
+        @query.set_raw_query ::Sunspot::Query::RawQuery.new( keywords, options )
+      end
+
       # Paginate your search. This works the same way as WillPaginate's
       # paginate().
       #
