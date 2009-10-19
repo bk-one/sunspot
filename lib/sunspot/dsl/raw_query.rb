@@ -1,33 +1,15 @@
 module Sunspot
   module DSL
-    attr :query
-    
+    attr :query_parameters
     # 
-    # This DSL exposes the functionality provided by Solr's fulltext Dismax
-    # handler.
+    # This DSL gives full control over the request that
+    # will be send to solr. You can pass parameters for
+    # there query as a hash.
     #
     class RawQuery
-      def initialize(query, options) #:nodoc:
-        @query, @setup = query, options
+      def initialize(query_parameters) #:nodoc:
+        @query_parameters = query_parameters
       end
-
-      # 
-      # RawQuery allows you to send a raw query in solr-search-syntax
-      # to the solr-server, in case the standard dsl options are not
-      # sufficient. 
-      #
-      # === Example
-      #
-      #   Sunspot.search do
-      #     raw_query "(+field:something~0.8)"
-      #   end
-      #
-      # You may also pass a hash of options as the last argument. Options are
-      # the following:
-      #
-      # :TBD:
-      
-      
     end
   end
 end

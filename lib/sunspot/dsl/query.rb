@@ -74,8 +74,25 @@ module Sunspot
       end
       alias_method :keywords, :fulltext
 
-      def raw_query(keywords, options = {})
-        @query.set_raw_query ::Sunspot::Query::RawQuery.new( keywords, options )
+      # Specify a raw query that will be passed to solr. You can specify
+      # any possible solr query parameter like qt. 
+      # 
+      # Please note that you cannot mix a raw_query with any other
+      # dsl commands. See http://wiki.apache.org/solr/QueryParametersIndex
+      # for more information.
+      #
+      # ==== Example
+      #
+      # Sunspot.search(Post) do
+      #   raw_query :q => 'some_field:some value', :fl => 'id, name'
+      # end
+      # 
+      # ==== Parameters
+      #
+      # parameters<Hash>:: query parameters to pass to solr
+      # 
+      def raw_query( raw_query_parameters )
+        @query.set_raw_query ::Sunspot::Query::RawQuery.new( raw_query_parameters )
       end
 
       # Paginate your search. This works the same way as WillPaginate's
