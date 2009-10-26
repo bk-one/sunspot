@@ -38,7 +38,16 @@ module Sunspot
   NoSetupError = Class.new(Exception)
   IllegalSearchError = Class.new(Exception)
 
+
   class <<self
+    # 
+    # Clients can inject a session proxy, allowing them to implement custom
+    # session-management logic while retaining the Sunspot singleton API as
+    # an available interface. The object assigned to this attribute must
+    # respond to all of the public methods of the Sunspot::Session class.
+    #
+    attr_writer :session
+
     # Configures indexing and search for a given class.
     #
     # ==== Parameters
@@ -314,7 +323,7 @@ module Sunspot
     #
     # objects...<Object>:: Objects to remove from the index
     #
-    def remove!
+    def remove!(*objects)
       session.remove!(*objects)
     end
 
@@ -411,6 +420,24 @@ module Sunspot
     #
     def commit_if_dirty
       session.commit_if_dirty
+    end
+    
+    #
+    # True if documents have been removed since the last commit.
+    #
+    # ==== Returns
+    #
+    # Boolean:: Whether there have been any deletes since the last commit
+    #
+    def delete_dirty?
+      session.delete_dirty?
+    end
+
+    # 
+    # Sends a commit if the session has deletes since the last commit (see #delete_dirty?).
+    #
+    def commit_if_delete_dirty
+      session.commit_if_delete_dirty
     end
     
     # Returns the configuration associated with the singleton session. See

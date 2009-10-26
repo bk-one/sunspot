@@ -1,8 +1,7 @@
 module Sunspot
   module Query
     class Query
-      attr_accessor :scope
-      attr_accessor :fulltext
+      attr_accessor :scope, :fulltext, :parameter_adjustment
 
       def initialize(types)
         @scope = Scope.new
@@ -20,8 +19,8 @@ module Sunspot
         @fulltext = Dismax.new(keywords)
       end
       
-      def set_raw_query(raw_query)
-        @raw_query = raw_query
+      def set_solr_parameter_adjustment( block )
+        @parameter_adjustment = block
       end
 
       def add_location_restriction(coordinates, radius)
@@ -66,7 +65,11 @@ module Sunspot
         Sunspot::Util.deep_merge!(params, @sort.to_params)
         Sunspot::Util.deep_merge!(params, @pagination.to_params) if @pagination
         Sunspot::Util.deep_merge!(params, @local.to_params) if @local
+<<<<<<< HEAD
         Sunspot::Util.deep_merge!(params, @raw_query.to_params) if @raw_query
+=======
+        @parameter_adjustment.call(params) if @parameter_adjustment
+>>>>>>> 65aa5bde9f4c11fc87abe56b2e55e17bb9ef0938
         params[:q] ||= '*:*'
         params
       end

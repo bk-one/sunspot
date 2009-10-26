@@ -118,10 +118,19 @@ describe 'Session' do
     it 'should start out not dirty' do
       @session.dirty?.should be_false
     end
+    
+    it 'should start out not delete_dirty' do
+      @session.delete_dirty?.should be_false
+    end
 
     it 'should be dirty after adding an item' do
       @session.index(Post.new)
       @session.dirty?.should be_true
+    end
+    
+    it 'should be not be delete_dirty after adding an item' do
+      @session.index(Post.new)
+      @session.delete_dirty?.should be_false
     end
 
     it 'should be dirty after deleting an item' do
@@ -129,20 +138,41 @@ describe 'Session' do
       @session.dirty?.should be_true
     end
 
+    it 'should be delete_dirty after deleting an item' do
+      @session.remove(Post.new)
+      @session.delete_dirty?.should be_true
+    end
+
     it 'should be dirty after a remove_all for a class' do
       @session.remove_all(Post)
       @session.dirty?.should be_true
+    end
+
+    it 'should be delete_dirty after a remove_all for a class' do
+      @session.remove_all(Post)
+      @session.delete_dirty?.should be_true
     end
 
     it 'should be dirty after a global remove_all' do
       @session.remove_all
       @session.dirty?.should be_true
     end
-
+    
+    it 'should be delete_dirty after a global remove_all' do
+      @session.remove_all
+      @session.delete_dirty?.should be_true
+    end
+    
     it 'should not be dirty after a commit' do
       @session.index(Post.new)
       @session.commit
       @session.dirty?.should be_false
+    end
+
+    it 'should not be delete_dirty after a commit' do
+      @session.remove(Post.new)
+      @session.commit
+      @session.delete_dirty?.should be_false
     end
 
     it 'should not commit when commit_if_dirty called on clean session' do
@@ -150,10 +180,32 @@ describe 'Session' do
       connection.should have(0).commits
     end
 
+    it 'should not commit when commit_if_delete_dirty called on clean session' do
+      @session.commit_if_delete_dirty
+      connection.should have(0).commits
+    end
+
     it 'should commit when commit_if_dirty called on dirty session' do
       @session.index(Post.new)
       @session.commit_if_dirty
       connection.should have(1).commits
+    end
+    
+    it 'should commit when commit_if_delete_dirty called on delete_dirty session' do
+      @session.remove(Post.new)
+      @session.commit_if_delete_dirty
+      connection.should have(1).commits
+    end
+  end
+
+  context 'session proxy' do
+    it 'should send messages to manually assigned session proxy' do
+      stub_session = stub!('session')
+      Sunspot.session = stub_session
+      post = Post.new
+      stub_session.should_receive(:index).with(post)
+      Sunspot.index(post)
+      Sunspot.reset!
     end
   end
 
